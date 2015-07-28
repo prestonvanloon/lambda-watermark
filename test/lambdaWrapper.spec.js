@@ -10,7 +10,7 @@
       putObject: sinon.stub().yields()
     },
     WatermarkerMock = function() {
-      return function(next) { next(); };
+      return { watermark: function(next) { next(); } };
     };
 
   LambdaWrapper.__set__('s3', s3Mock);

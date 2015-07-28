@@ -1,0 +1,46 @@
+{
+  "name": "lambda-watermark",
+  "version": "1.0.0",
+  "description": "Node service for AWS Lambda to apply watermark to S3 images",
+  "main": "index.js",
+  "private": true,
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/prestonvanloon/lambda-watermark.git"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "lib/",
+      "data-cover-never": "node_modules"
+    }
+  },
+  "keywords": [
+    "AWS",
+    "Lambda",
+    "S3",
+    "watermark",
+    "image"
+  ],
+  "author": "Preston Van Loon <preston@machinepowered.com>",
+  "analyze": true,
+  "license": "MIT",
+  "devDependencies": {
+    "blanket": "^1.1.7",
+    "coveralls": "^2.11.2",
+    "expect.js": "^0.3.1",
+    "mocha": "^2.2.5",
+    "mocha-lcov-reporter": "0.0.2",
+    "rewire": "^2.3.4",
+    "should": "^7.0.2",
+    "sinon": "^1.15.4"
+  },
+  "dependencies": {
+    "async": "^1.3.0",
+    "aws-sdk": "^2.1.36",
+    "gm": "^1.18.1",
+    "object-assign": "^3.0.0"
+  }
+}

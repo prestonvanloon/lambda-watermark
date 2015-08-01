@@ -4,7 +4,6 @@
 
   var options = {
     replace: true,
-    debug: true,
     watermarkImagePath: './exampleWatermark.png',
     relativeSize: 5,
     opacity: 50

@@ -1,14 +1,15 @@
 (function () {
   'use strict';
 
-  var Watermarker = require('../lib/watermarker'),
-    should = require('should');
+  var rewire = require('rewire'),
+    Watermarker = rewire('../lib/watermarker'),
+    should = require('should'),
+    watermarkerHelper = require('./watermarker.helper');
 
   describe('Watermarker', function () {
     describe('options', function () {
       it('should provide some default options', function () {
         var watermarker = new Watermarker();
-        watermarker.options.should.have.property('replace');
         watermarker.options.should.have.property('opacity');
         watermarker.options.should.have.property('relativeSize');
       });
@@ -17,8 +18,6 @@
       });
       it('should not overwrite passed in options', function () {
         var options = {
-          replace: false,
-          debug: true,
           opacity: 100,
           relativeSize: 7
         };
@@ -28,12 +27,13 @@
       it('should validate options');
     });
 
-    describe.skip('watermark', function () {
+    describe('watermark', function () {
       var watermarker;
       beforeEach(function () {
         watermarker = new Watermarker();
       });
-      it('should return an error image.buffer is not a buffer', function (done) {
+
+      it.skip('should return an error image.buffer is not a buffer', function (done) {
         watermarker.watermark({
           Body: 'not a buffer'
         }, function (err) {
@@ -41,7 +41,8 @@
           done();
         });
       });
-      it('should return an error if image.type is missing', function (done) {
+
+      it.skip('should return an error if image.type is missing', function (done) {
         watermarker.watermark({
           Body: new Buffer('')
         }, function (err) {
@@ -49,7 +50,8 @@
           done();
         });
       });
-      it('should return an error if image.type is not png or jpg', function (done) {
+
+      it.skip('should return an error if image.type is not png or jpg', function (done) {
         watermarker.watermark({
           Body: new Buffer(''),
           ContentType: 'mp3'
@@ -58,16 +60,26 @@
           done();
         });
       });
+
       it('should call waterfall functions by passing image');
     });
     describe('_resizeWatermarkImage', function () {
       var watermarker;
-      beforeEach(function () {
-        watermarker = new Watermarker({
-          watermarkImagePath: 'something.png'
+      beforeEach(function() {
+        Watermarker.__set__('gm', function() {
+          return {
+            size: function(cb) {
+              cb(null, {
+                width: 1000,
+                height: 200
+              });
+            }
+          };
         });
+        watermarker = new Watermarker(watermarkerHelper.validOptions);
       });
-      it.skip('should fail if image is not png', function (done) {
+
+      it('should fail if image is not png', function (done) {
         watermarker = new Watermarker({
           watermarkImagePath: 'something.jpg'
         });
@@ -76,26 +88,64 @@
           done();
         });
       });
-      it('should handle square objects');
-      it('should handle rectangular objects');
-      it('should write file to temp path');
+
+      it('should throw error if image path has no extension', function (done) {
+        watermarker = new Watermarker({
+          watermarkImagePath: 'something'
+        });
+        try {
+          watermarker._resizeWatermarkImage({});
+        } catch (e) {
+          e.message.should.be.equal('Could not infer filetype from path');
+          done();
+        }
+      });
 
       describe('calculateGeometry', function () {
-        var watermarker;
-        beforeEach(function () {
-          watermarker = new Watermarker();
-        });
-        it.skip('should throw error if boundingBox width is not a number', function () {
+        watermarker = new Watermarker(watermarkerHelper.validOptions);
 
+        it('should handle square objects', function(done) {
+          watermarker._resizeWatermarkImage({}, function (err, image, geometry) {
+            geometry.should.be.equal('100x100+900+100');
+            done();
+          });
         });
-        it('should handle square objects');
+
         it('should handle rectangular objects');
       });
     });
     describe('_applyWatermark', function () {
+      var watermarker;
+      beforeEach(function() {
+        var gmObj ={
+          composite: function() {
+            return gmObj;
+          },
+          geometry: function() {
+            return gmObj;
+          },
+          dissolve: function() {
+            return gmObj;
+          },
+          toBuffer: function(type, cb) {
+            return cb();
+          }
+        };
+        Watermarker.__set__('gm', function() {
+            return gmObj;
+        });
+        watermarker = new Watermarker(watermarkerHelper.validOptions);
+      });
       it('should apply options opacity');
+
       it('should call callback with buffer');
-      it('should call callback with imageType');
+
+      it('should call callback with imageType', function(done) {
+        watermarker._applyWatermark({ ContentType: 'image/jpeg' }, null, function(err, buffer, contentType){
+          contentType.should.be.equal('image/jpeg');
+          done();
+        })
+      });
     });
   });
 

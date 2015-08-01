@@ -73,7 +73,7 @@
           s3Mock.putObject.called.should.be.true();
         });
       });
-      describe.skip('done', function () {
+      describe('done', function () {
         it('should report error to console.error', function() {
           console.error.calledWithMatch(/^Unable to watermark.*/).should.be.true();
         });

@@ -33,7 +33,6 @@
       beforeEach(function () {
         watermarker = new Watermarker(watermarkerHelper.validOptions);
         watermarker._resizeWatermarkImage = sinon.stub().yields();
-        watermarker._applyWatermark = sinon.stub().yields();
       });
 
       it('should call _resizeWatermarkImage', function() {
@@ -41,9 +40,10 @@
         watermarker._resizeWatermarkImage.called.should.be.true();
       });
 
-      it('should call _applyWatermark', function() {
+      it('should call _applyWatermark', function(done) {
+        watermarker._resizeWatermarkImage = function(img, cb) { cb(); };
+        watermarker._applyWatermark = function() { done(); };
         watermarker.watermark({});
-        watermarker._applyWatermark.called.should.be.true();
       });
 
       it.skip('should return an error image.buffer is not a buffer', function (done) {

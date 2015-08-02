@@ -40,14 +40,14 @@
       });
 
       it('should call _resizeWatermarkImage', function() {
-        watermarker.watermark({}, function(){});
+        watermarker.watermark(watermarkerHelper.validImage, function(){});
         watermarker._resizeWatermarkImage.called.should.be.true();
       });
 
       it('should call _applyWatermark', function(done) {
         watermarker._resizeWatermarkImage = function(img, cb) { cb(); };
         watermarker._applyWatermark = function() { done(); };
-        watermarker.watermark({});
+        watermarker.watermark(watermarkerHelper.validImage);
       });
 
       it.skip('should return an error image.buffer is not a buffer', function (done) {
@@ -59,26 +59,29 @@
         });
       });
 
-      it.skip('should return an error if image.type is missing', function (done) {
-        watermarker.watermark({
-          Body: new Buffer('')
-        }, function (err) {
+      it('should return an error if image.type is missing', function (done) {
+        watermarker.watermark({}, function (err) {
           err.should.be.equal('image type is missing!');
           done();
         });
       });
 
-      it.skip('should return an error if image.type is not png or jpg', function (done) {
+      it('should return an error if image.type is not png or jpg', function (done) {
         watermarker.watermark({
-          Body: new Buffer(''),
-          ContentType: 'mp3'
+          ContentType: 'image/tiff'
         }, function (err) {
           err.should.be.equal('image type is not jpg or png!');
           done();
         });
       });
 
-      it('should call waterfall functions by passing image');
+      it('should call waterfall functions by passing image', function(done) {
+        watermarker._resizeWatermarkImage = function(image) {
+          image.should.be.equal(watermarkerHelper.validImage);
+          done();
+        };
+        watermarker.watermark(watermarkerHelper.validImage);
+      });
     });
     describe('_resizeWatermarkImage', function () {
       var watermarker;
@@ -141,7 +144,7 @@
           geometry: sinon.stub().returnsThis(),
           dissolve: sinon.stub().returnsThis(),
           gravity: sinon.stub().returnsThis(),
-          toBuffer: function(type, cb) {
+          toBuffer: function(cb) {
             return cb(null, testBuffer);
           }
         };

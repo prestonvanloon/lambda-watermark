@@ -3,14 +3,12 @@
   var LambdaWatermark = require('../index');
 
   var options = {
-    replace: true,
-    watermarkImagePath: './exampleWatermark.png',
+    watermarkImagePath: './example/ABL_watermark_new.png',
     relativeSize: 5,
     opacity: 50
   };
 
   exports.handler = function(event, context) {
-    console.log(JSON.stringify(event));
     new LambdaWatermark(options)(event, context);
   };
 })();

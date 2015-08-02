@@ -4,6 +4,7 @@
   var rewire = require('rewire'),
     Watermarker = rewire('../lib/watermarker'),
     should = require('should'),
+    sinon = require('sinon'),
     watermarkerHelper = require('./watermarker.helper');
 
   describe('Watermarker', function () {
@@ -30,7 +31,19 @@
     describe('watermark', function () {
       var watermarker;
       beforeEach(function () {
-        watermarker = new Watermarker();
+        watermarker = new Watermarker(watermarkerHelper.validOptions);
+        watermarker._resizeWatermarkImage = sinon.stub().yields();
+        watermarker._applyWatermark = sinon.stub().yields();
+      });
+
+      it('should call _resizeWatermarkImage', function() {
+        watermarker.watermark({}, function(){});
+        watermarker._resizeWatermarkImage.called.should.be.true();
+      });
+
+      it('should call _applyWatermark', function() {
+        watermarker.watermark({});
+        watermarker._applyWatermark.called.should.be.true();
       });
 
       it.skip('should return an error image.buffer is not a buffer', function (done) {
@@ -106,7 +119,7 @@
 
         it('should handle square objects', function(done) {
           watermarker._resizeWatermarkImage({}, function (err, image, geometry) {
-            geometry.should.be.equal('100x100+900+100');
+            geometry.should.be.equal('100x100+0+0^');
             done();
           });
         });
@@ -129,6 +142,9 @@
           },
           toBuffer: function(type, cb) {
             return cb();
+          },
+          gravity: function() {
+            return gmObj;
           }
         };
         Watermarker.__set__('gm', function() {

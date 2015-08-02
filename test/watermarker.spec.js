@@ -14,9 +14,11 @@
         watermarker.options.should.have.property('opacity');
         watermarker.options.should.have.property('relativeSize');
       });
+
       it('should return new instance of watermarker if called without `new`', function () {
         Watermarker().should.be.instanceOf(Watermarker); // jshint ignore:line
       });
+
       it('should not overwrite passed in options', function () {
         var options = {
           opacity: 100,
@@ -25,11 +27,13 @@
         var watermarker = new Watermarker(options);
         should.deepEqual(watermarker.options, options);
       });
+
       it('should validate options');
     });
 
     describe('watermark', function () {
       var watermarker;
+
       beforeEach(function () {
         watermarker = new Watermarker(watermarkerHelper.validOptions);
         watermarker._resizeWatermarkImage = sinon.stub().yields();
@@ -89,6 +93,7 @@
             }
           };
         });
+
         watermarker = new Watermarker(watermarkerHelper.validOptions);
       });
 
@@ -96,6 +101,7 @@
         watermarker = new Watermarker({
           watermarkImagePath: 'something.jpg'
         });
+
         watermarker._resizeWatermarkImage({}, function (err) {
           err.should.be.equal('Watermark image is not a png');
           done();
@@ -106,6 +112,7 @@
         watermarker = new Watermarker({
           watermarkImagePath: 'something'
         });
+
         try {
           watermarker._resizeWatermarkImage({});
         } catch (e) {
@@ -117,44 +124,56 @@
       describe('calculateGeometry', function () {
         watermarker = new Watermarker(watermarkerHelper.validOptions);
 
-        it('should handle square objects', function(done) {
+        it('should calculate geometry string', function(done) {
           watermarker._resizeWatermarkImage({}, function (err, image, geometry) {
             geometry.should.be.equal('100x100+0+0^');
             done();
           });
-        });
-
-        it('should handle rectangular objects');
+        });;
       });
     });
     describe('_applyWatermark', function () {
-      var watermarker;
+      var watermarker, gmObj, testGeometry ='100x100+0+0', testBuffer = new Buffer('test');
+
       beforeEach(function() {
-        var gmObj ={
-          composite: function() {
-            return gmObj;
-          },
-          geometry: function() {
-            return gmObj;
-          },
-          dissolve: function() {
-            return gmObj;
-          },
+        gmObj = {
+          composite: sinon.stub().returnsThis(),
+          geometry: sinon.stub().returnsThis(),
+          dissolve: sinon.stub().returnsThis(),
+          gravity: sinon.stub().returnsThis(),
           toBuffer: function(type, cb) {
-            return cb();
-          },
-          gravity: function() {
-            return gmObj;
+            return cb(null, testBuffer);
           }
         };
         Watermarker.__set__('gm', function() {
             return gmObj;
         });
         watermarker = new Watermarker(watermarkerHelper.validOptions);
+          watermarker._applyWatermark({}, testGeometry, function() {});
       });
-      it('should apply options opacity');
 
-      it('should call callback with buffer');
+      it('should apply options opacity', function() {
+        gmObj.dissolve.calledWithExactly(watermarkerHelper.validOptions.opacity);
+      });
+
+      it('should call composite with thumbnail path', function(){
+         gmObj.composite.calledWithExactly(watermarkerHelper.validOptions.watermarkImagePath);
+      });
+
+      it('should call gravity SouthEast', function(){
+         gmObj.composite.calledWithExactly('SouthEast'); // calculateGeometry depends on this to be set!
+      });
+
+      it('should call geometry with passed geometry value', function() {
+        gmObj.geometry.calledWithExactly(testGeometry);
+      })
+
+      it('should call callback with buffer', function(done) {
+        watermarker._applyWatermark({}, null, function(err, buffer, contentType) {
+          buffer.should.be.equal(testBuffer);
+          done();
+        });
+      });
 
       it('should call callback with imageType', function(done) {
         watermarker._applyWatermark({ ContentType: 'image/jpeg' }, null, function(err, buffer, contentType){

@@ -3,7 +3,7 @@
   var LambdaWatermark = require('../index');
 
   var options = {
-    watermarkImagePath: './example/ABL_watermark_new.png',
+    watermarkImagePath: './exampleWatermark.png',
     relativeSize: 5,
     opacity: 50
   };

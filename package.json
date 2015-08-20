@@ -1,9 +1,9 @@
 {
   "name": "lambda-watermark",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Node service for AWS Lambda to apply watermark to S3 images",
   "main": "index.js",
-  "private": true,
+  "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/prestonvanloon/lambda-watermark.git"

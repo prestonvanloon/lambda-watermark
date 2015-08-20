@@ -1,6 +1,6 @@
 {
   "name": "lambda-watermark",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Node service for AWS Lambda to apply watermark to S3 images",
   "main": "index.js",
   "private": false,
